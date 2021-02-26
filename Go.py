@@ -106,6 +106,7 @@ class Go(IScript):
         if method_str[0] != 'L':
             r_index = method_str.rfind('.')
             class_name = method_str[: r_index]
+            class_name = self.class_to_sig(class_name)
             method_name = method_str[r_index + 1:]
         else:
             method_sig_splits = method_str.split('->')
@@ -116,6 +117,7 @@ class Go(IScript):
             method_name = method_name.split('*')[0]
 
         method_sig = '{}->{}'.format(class_name, method_name)
+        print('try go to method sig {}'.format(method_sig))
         methods = []
         has_body = False
         clz = self.dex.getClass(class_name)
@@ -165,4 +167,4 @@ class Go(IScript):
 
     @staticmethod
     def class_to_sig(class_name):
-        addr = 'L' + class_name.replace('.', '/') + ';'
+        return 'L' + class_name.replace('.', '/') + ';'
