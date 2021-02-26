@@ -30,6 +30,7 @@ class Go(IScript):
 
             if self.fragment.getUnit().getName() == 'Manifest':
                 self.go_to_activity(ctx, focus_text)
+                return
 
         go_str = ctx.displayQuestionBox("go where",
                                            "class(eg. a.b.c, La/b/c;), method(eg. 'a.b.c.a( La/b/c;->a('), method match(eg. 'a.b.c.a*('):",
