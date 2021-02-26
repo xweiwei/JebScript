@@ -12,6 +12,25 @@ import xml.etree.ElementTree as ET
 # reload(sys)
 # sys.setdefaultencoding('utf-8')
 
+'''
+## Usage
+find . -name '*.apk' |xargs -n 1 -I{} ~/opt/jeb-pro-3.19.1.202005071620/jeb_macos.sh -c --srv2 --script=/Users/weiwei/opt/JebScript/FindDemon.py -- {} config.json
+
+## Config
+```json
+{
+    "string": [
+        "com.xxx.xxx.xxx.xxx",
+    ],
+    "method": [
+        "Lcom/xxx/xxx/xxx/xxx;->getService"
+    ],
+    "method_to_string": true,
+    "ref_count": 1,
+    "refind": false
+}
+```
+'''
 
 class Config(object):
     def __init__(self, config_path):
@@ -100,6 +119,7 @@ class FindDemon(IScript):
 
 
     def appendMethod(self, methods):
+        match_methods = []
         for method_sig in methods:
             # 方法未闭合
             if ')' not in method_sig:
@@ -109,14 +129,26 @@ class FindDemon(IScript):
                         # dex_method = IDexMethod
                         dex_method_sig = dex_method.getSignature()
                         if dex_method_sig.startswith(method_sig):
-                            print('[*] Append method in method list' + dex_method_sig)
-                            methods.append(dex_method_sig)
+                            print('[*] Append method in method list ' + dex_method_sig)
+                            match_methods.append(dex_method_sig)
+                else:
+                    # if isinstance(self.dex, IDexUnit):
+                    #     pass
+                    for m in self.dex.getMethods():
+                        # if isinstance(m, IDexMethod):
+                        #     pass
+                        dex_method_sig = m.getSignature()
+                        if dex_method_sig.startswith(method_sig):
+                            print('[*] Append method in method list ' + dex_method_sig)
+                            match_methods.append(dex_method_sig)
+        methods.extend(match_methods)
+
 
     def method2Str(self, methods, strs):
         for method_sig in methods:
-            clz_str = method_sig.split(';->')[0][1:].replace('/', '.')
+            clz_str = method_sig.split('->')[0][1:].replace('/', '.')[:-1]
             if clz_str not in strs:
-                print('[*] Append class in string list' + clz_str)
+                print('[*] Append class in string list ' + clz_str)
                 strs.append(clz_str)
 
     def showPackageInfo(self, ctx):
