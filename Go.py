@@ -58,8 +58,17 @@ class Go(IScript):
             return
 
         ctx.openView(unit)
+
+        for view in ctx.getViews(unit):
+            for fragment in view.getFragments():
+                if view.getFragmentLabel(fragment) == 'Disassembly':
+                    view.setFocus()
+                    view.setActiveFragment(fragment)
+                    print(type(address))
+                    fragment.setActiveAddress(address)
+                    return
         # this code assumes that the active fragment is the disassembly (it may not be; strong script should focus the assembly fragment)
-        ctx.getFocusedView().getActiveFragment().setActiveAddress(address)
+        # ctx.getFocusedView().getActiveFragment().setActiveAddress(address)
 
     def go_to_activity(self, ctx, aname):
         fragment = self.fragment
@@ -157,13 +166,19 @@ class Go(IScript):
                     print('list addr')
                     for addr in addr_list:
                         print(addr)
-                    print('go first method call addr {}'.format(addr_list[0]))
-
-
-                addr = addr_list[0]
+                    rows = []
+                    for candidate_address in addr_list:
+                        rows.append([candidate_address])
+                    index = ctx.displayList('Select a location (%d candidates)' % len(addr_list), None, ['Addresses'], rows)
+                    if index < 0:
+                        return
+                    addr = addr_list[index]
+                else:
+                    addr = addr_list[0]
+                    
                 # 无法跳转到精确位置
-                addr = str(addr).split('+')[0]
-                self.go_to_address(ctx, addr)
+                # addr = str(addr).split('+')[0]
+                self.go_to_address(ctx, str(addr))
 
 
     @staticmethod
